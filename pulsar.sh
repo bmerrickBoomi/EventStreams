@@ -107,13 +107,11 @@ then
   die
 fi
 
-for i in {1..10}
+for i in {1..2}
 do
-pulsar-client --url pulsar+ssl://usa-east.eventstreams.boomi.com:6651 \
+~/apache-pulsar-2.11.0/bin/pulsar-client --url pulsar+ssl://usa-east.eventstreams.boomi.com:6651 \
   --auth-plugin "org.apache.pulsar.client.impl.auth.AuthenticationToken" \
-  # "JWT_TOKEN"
   --auth-params "token:$_arg_token" \
-  # persistent://boomi_brianmerrick-4SYB9W/test/test
   produce $_arg_producer \
   -m "$i" -n 1000 &
 done
