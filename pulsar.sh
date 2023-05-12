@@ -37,10 +37,10 @@ _arg_producer=
 
 print_help()
 {
-	printf '%s\n' "-t TOKEN -p persistent://ACCOUNT/TOPIC/SUBSCRIBER"
+	printf '%s\n' "-t TOKEN -p persistent://ACCOUNT/ENVIRONMENT/TOPIC"
 	printf 'Usage: %s [-t|--token <arg>] [-p|--producer <arg>] [-h|--help]\n' "$0"
-	printf '\t%s\n' "-t, --token: JWT Token (no default)"
-	printf '\t%s\n' "-p, --producer: persistent://ACCOUNT/TOPIC/SUBSCRIBER (no default)"
+	printf '\t%s\n' "-t, --token: JWT_Token (no default)"
+	printf '\t%s\n' "-p, --producer: persistent://ACCOUNT/ENVIRONMENT/TOPIC (no default)"
 	printf '\t%s\n' "-h, --help: Prints help"
 }
 
