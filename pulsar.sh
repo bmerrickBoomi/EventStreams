@@ -110,11 +110,11 @@ fi
 for i in {1..1}
 do
 # persistent/ACCOUNT_NAME/ENVIRONMENT_ID/TOPIC	
-~/apache-pulsar-2.11.0/bin/pulsar-client --url pulsar+ssl://usa-east.eventstreams.boomi.com:6651 \
+~/apache-pulsar/bin/pulsar-client --url pulsar+ssl://usa-east.eventstreams.boomi.com:6651 \
   --auth-plugin "org.apache.pulsar.client.impl.auth.AuthenticationToken" \
   --auth-params "token:$_arg_token" \
   produce $_arg_producer \
-  -m "$i" -n 1000
+  -f $(pwd)/data/gps_iot.xml -n 25
 done
 
 # ] <-- needed because of Argbash
