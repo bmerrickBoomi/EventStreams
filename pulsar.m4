@@ -6,6 +6,7 @@
 # ARG_OPTIONAL_SINGLE([token],[t],[JWT Token])
 # ARG_OPTIONAL_SINGLE([producer],[p],[persistent://ACCOUNT/TOPIC/SUBSCRIBER])
 # ARG_OPTIONAL_SINGLE([consumer],[c],[persistent://ACCOUNT/TOPIC/SUBSCRIBER])
+# ARG_OPTIONAL_SINGLE([subscription],[s],[SUBSCRIBER])
 # ARG_HELP([-t TOKEN -p persistent://ACCOUNT/TOPIC/SUBSCRIBER])
 # ARGBASH_GO()
 # needed because of Argbash --> m4_ignore([
@@ -34,7 +35,6 @@ begins_with_short_option()
 # THE DEFAULTS INITIALIZATION - OPTIONALS
 _arg_token=
 _arg_producer=
-
 
 print_help()
 {
@@ -100,22 +100,51 @@ parse_commandline "$@"
 
 echo "Value of --token: $_arg_token"
 echo "Value of --producer: $_arg_producer"
+echo "Value of --consumer: $_arg_consumer"
+echo "Value of --subscription: $_arg_subscription"
 echo "print is $_arg_print"
 
-if [ -z "$_arg_token" ] || [ -z "$_arg_producer" ]
+if [ -z "$_arg_token" ]
 then
   print_help
   die
 fi
 
-for i in {1..10}
-do
-# persistent/ACCOUNT_NAME/ENVIRONMENT_ID/TOPIC	
-~/apache-pulsar/bin/pulsar-client --url pulsar+ssl://usa-east.eventstreams.boomi.com:6651 \
-  --auth-plugin "org.apache.pulsar.client.impl.auth.AuthenticationToken" \
-  --auth-params "token:$_arg_token" \
-  produce $_arg_producer \
-  -f $(pwd)/data/gps_iot.xml -n 1000 &
-done
+if [ ! -z "$_arg_producer" ] && [ ! -z "$_arg_consumer" ]
+then
+  printf 'Cannot set a producer and consumer in one execution....exiting\n'
+  print_help
+  die
+fi
+
+if [ ! -z "$_arg_producer" ]
+then
+  echo "Starting producer...."
+  for i in {1..10}
+  do
+  # persistent/ACCOUNT_NAME/ENVIRONMENT_ID/TOPIC	
+  ~/apache-pulsar/bin/pulsar-client --url pulsar+ssl://usa-east.eventstreams.boomi.com:6651 \
+    --auth-plugin "org.apache.pulsar.client.impl.auth.AuthenticationToken" \
+    --auth-params "token:$_arg_token" \
+    produce $_arg_producer \
+    -f $(pwd)/data/gps_iot.xml -n 1000 &
+  done
+fi
+
+if [ ! -z "$_arg_consumer" ]
+then
+  if [ -z "$_arg_subscription" ]
+  then
+    echo "Subscription is required for a consume operation...exiting"
+    die
+  fi
+
+  echo "Starting consumer..."
+  ~/apache-pulsar/bin/pulsar-client --url pulsar+ssl://usa-east.eventstreams.boomi.com:6651 \
+    --auth-plugin "org.apache.pulsar.client.impl.auth.AuthenticationToken" \
+    --auth-params "token:$_arg_token" \
+    consume -s "$_arg_subscription" "$_arg_consumer" \
+    -n 0 
+fi
 
 # ] <-- needed because of Argbash
